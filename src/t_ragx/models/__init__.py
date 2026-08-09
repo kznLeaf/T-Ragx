@@ -9,7 +9,13 @@ from .OpenAIModel import OpenAIModel
 from importlib import import_module
 from pathlib import Path
 
-__all__ = ["MistralModel", "InternLM2Model", "OllamaModel", "OpenAIModel", "LlamaCppPythonModel"]
+__all__ = [
+    "InternLM2Model",
+    "LlamaCppPythonModel",
+    "MistralModel",
+    "OllamaModel",
+    "OpenAIModel",
+]
 
 for f in Path(__file__).parent.glob("*.py"):
     module_name = f.stem

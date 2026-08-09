@@ -1,11 +1,10 @@
-from typing import List, Union
 
 import numpy as np
 from tqdm.auto import tqdm
 
-from t_ragx.processors import ElasticInputProcessor, BaseInputProcessor
 from t_ragx.models.AggregationModel import CometAggregationModel
 from t_ragx.models.BaseModel import BaseModel
+from t_ragx.processors import BaseInputProcessor, ElasticInputProcessor
 
 
 class TRagx:
@@ -14,13 +13,15 @@ class TRagx:
     Translation using LLM with Retrieval Augmented Generation (RAG)
 
     """
+
     aggregate_model = None
 
-    def __init__(self,
-                 generation_models: Union[BaseModel, List[BaseModel]],
-                 aggregate_model=None,
-                 input_processor: BaseInputProcessor = None,
-                 ):
+    def __init__(
+        self,
+        generation_models: BaseModel | list[BaseModel],
+        aggregate_model=None,
+        input_processor: BaseInputProcessor = None,
+    ):
         """
 
         Args:
@@ -47,28 +48,34 @@ class TRagx:
     def __call__(self, *args, **kwargs):
         return self.translate(*args, **kwargs)
 
-    def translate(self, text, pre_text: list = None,
-                  search_glossary=True, search_memory=True,
-                  memory_search_args: dict = None,
-                  glossary_search_args: dict = None,
-                  prompt_args: List[dict] = None,
-                  generation_args: List[dict] = None):
+    def translate(
+        self,
+        text,
+        pre_text: list = None,
+        search_glossary=True,
+        search_memory=True,
+        memory_search_args: dict = None,
+        glossary_search_args: dict = None,
+        prompt_args: list[dict] = None,
+        generation_args: list[dict] = None,
+    ):
         pass
 
-    def batch_translate(self,
-                        text_list,
-                        pre_text_list: list = None,
-                        batch_size=1,
-                        source_lang_code='ja',
-                        target_lang_code='en',
-                        search_glossary=True,
-                        search_memory=True,
-                        memory_search_args: dict = None,
-                        glossary_search_args: dict = None,
-                        tokenize_args: List[dict] = None,
-                        prompt_args: List[dict] = None,
-                        generation_args: List[dict] = None
-                        ):
+    def batch_translate(
+        self,
+        text_list,
+        pre_text_list: list = None,
+        batch_size=1,
+        source_lang_code="ja",
+        target_lang_code="en",
+        search_glossary=True,
+        search_memory=True,
+        memory_search_args: dict = None,
+        glossary_search_args: dict = None,
+        tokenize_args: list[dict] = None,
+        prompt_args: list[dict] = None,
+        generation_args: list[dict] = None,
+    ):
 
         if pre_text_list is None:
             pre_text_list = [None] * len(text_list)
@@ -92,31 +99,38 @@ class TRagx:
 
         memory_results = [[]] * len(text_list)
         if search_memory:
-            memory_results = self.input_processor.search_memory(text_list, **memory_search_args)
+            memory_results = self.input_processor.search_memory(
+                text_list, **memory_search_args
+            )
 
         glossary_results = [[]] * len(text_list)
         if search_glossary:
-            glossary_results = self.input_processor.batch_search_glossary(text_list, **glossary_search_args)
+            glossary_results = self.input_processor.batch_search_glossary(
+                text_list, **glossary_search_args
+            )
 
         generation_output_dict = {}
         for model_idx, generation_model, p_args, tok_args, gen_args in zip(
-                range(len(self.generation_models)),
-                self.generation_models,
-                prompt_args,
-                tokenize_args,
-                generation_args
+            range(len(self.generation_models)),
+            self.generation_models,
+            prompt_args,
+            tokenize_args,
+            generation_args,
         ):
             translated_text_list = []
             for batch_idx in tqdm(
-                    np.array_split(list(range(len(text_list))), int(max(len(text_list) / batch_size, 1)))
+                np.array_split(
+                    list(range(len(text_list))),
+                    int(max(len(text_list) / batch_size, 1)),
+                )
             ):
                 batch_text = [text_list[i] for i in batch_idx]
                 batch_pre_text = [pre_text_list[i] for i in batch_idx]
 
                 batch_search_result = [
                     {
-                        'memory': memory_results[i],
-                        'glossary': glossary_results[i],
+                        "memory": memory_results[i],
+                        "glossary": glossary_results[i],
                     }
                     for i in range(len(batch_idx))
                 ]
@@ -128,7 +142,7 @@ class TRagx:
                     batch_search_result=batch_search_result,
                     batch_pre_text=batch_pre_text,
                     tokenize_config=tok_args,
-                    generation_config=gen_args
+                    generation_config=gen_args,
                 )
             generation_output_dict[model_idx] = translated_text_list
 

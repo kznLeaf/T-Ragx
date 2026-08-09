@@ -5,8 +5,8 @@ import pathlib
 import tempfile
 import urllib.request
 from hashlib import md5
-import numpy as np
 
+import numpy as np
 import requests
 
 from ..utils.heuristic import clean_text
@@ -21,13 +21,7 @@ def en_text_search(text, keyword):
         return False
     text = text.casefold()
     keyword = keyword.casefold()
-    if f" {keyword} " in text:
-        return True
-    elif text == keyword:
-        return True
-    elif len(keyword) - 1 > len(text) and text[:len(keyword) + 1] == keyword + " ":
-        return True
-    elif len(keyword) - 1 > len(text) and text[-len(keyword) + 1:] == " " + keyword:
+    if f" {keyword} " in text or text == keyword or len(keyword) - 1 > len(text) and text[: len(keyword) + 1] == keyword + " " or len(keyword) - 1 > len(text) and text[-len(keyword) + 1 :] == " " + keyword:
         return True
     return False
 
@@ -47,21 +41,22 @@ def merge_glossary_index(df):
             df.loc[idx, c] = [np.array(list(set(new_list)))] * len(df.loc[idx, c])
 
     if len(dup_index) > 0:
-        df = df[~df.index.duplicated(keep='first')]
+        df = df[~df.index.duplicated(keep="first")]
 
     return df
 
 
 # heuristic glossary retrieval
-def get_glossary(text, glossary_index, max_k=10, lang_code='en', source_lang='ja'):
+def get_glossary(text, glossary_index, max_k=10, lang_code="en", source_lang="ja"):
     text = clean_text(text)
     out_dict = {}
     count = 0
     for k in glossary_index:
         if lang_code not in glossary_index[k]:
             continue
-        if (k in text and source_lang != 'en') or \
-                (source_lang == 'en' and en_text_search(text, k)):
+        if (k in text and source_lang != "en") or (
+            source_lang == "en" and en_text_search(text, k)
+        ):
             skip_flag = False
             # check for glossary word being a component of a longer glossary word
             for ek in out_dict:
@@ -82,8 +77,8 @@ def get_glossary(text, glossary_index, max_k=10, lang_code='en', source_lang='ja
 def get_http_file_id(url):
     response = requests.head(url)
     # use ETag if available
-    if 'ETag' in response.headers:
-        return response.headers['ETag'].replace('"', "")
+    if "ETag" in response.headers:
+        return response.headers["ETag"].replace('"', "")
 
     # use encoded url path if ETag is not available
     return md5(base64.urlsafe_b64encode(url.encode())).hexdigest()

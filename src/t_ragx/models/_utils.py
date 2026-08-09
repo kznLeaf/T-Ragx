@@ -18,4 +18,4 @@ class DummyTokenizer:
         raise NotImplementedError
 
     def apply_chat_template(self, conversation, *args, **kwargs):
-        return conversation[-1]['content']
+        return conversation[-1]["content"]

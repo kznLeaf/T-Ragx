@@ -101,8 +101,15 @@ import t_ragx
 input_processor = t_ragx.Processors.ElasticInputProcessor()
 
 # Load/ point to the demo resources
-input_processor.load_general_glossary("https://t-ragx-public.s3.us-west-004.backblazeb2.com/t-ragx-public/glossary")
-input_processor.load_general_translation(elasticsearch_host=["https://t-ragx-fossil.rayliu.ca", "https://t-ragx-fossil2.rayliu.ca"])
+input_processor.load_general_glossary(
+    "https://t-ragx-public.s3.us-west-004.backblazeb2.com/t-ragx-public/glossary"
+)
+input_processor.load_general_translation(
+    elasticsearch_host=[
+        "https://t-ragx-fossil.rayliu.ca",
+        "https://t-ragx-fossil2.rayliu.ca",
+    ]
+)
 ```
 
 Using the `llama-cpp-python` backend:
@@ -110,7 +117,7 @@ Using the `llama-cpp-python` backend:
 ```python
 import t_ragx
 
-# T-Ragx currently support 
+# T-Ragx currently support
 # Huggingface transformers: MistralModel, InternLM2Model
 # Ollama API: OllamaModel
 # OpenAI API: OpenAIModel
@@ -121,7 +128,7 @@ mistral_model = t_ragx.models.LlamaCppPythonModel(
     # see https://huggingface.co/rayliuca/TRagx-GGUF-Mistral-7B-Instruct-v0.2
     # for other files
     chat_format="mistral-instruct",
-    model_config={'n_ctx':2048}, # increase the context window
+    model_config={"n_ctx": 2048},  # increase the context window
 )
 
 t_ragx_translator = t_ragx.TRagx([mistral_model], input_processor=input_processor)
@@ -135,9 +142,11 @@ t_ragx_translator.batch_translate(
     pre_text_list=pre_text_list,  # optional, including the preceding context to translate the document level
     # Can generate via:
     # pre_text_list = t_ragx.utils.helper.get_preceding_text(source_text_list, max_sent=3)
-    source_lang_code='ja',
-    target_lang_code='en',
-    memory_search_args={'top_k': 3}  # optional, pass additional arguments to input_processor.search_memory
+    source_lang_code="ja",
+    target_lang_code="en",
+    memory_search_args={
+        "top_k": 3
+    },  # optional, pass additional arguments to input_processor.search_memory
 )
 ```
 

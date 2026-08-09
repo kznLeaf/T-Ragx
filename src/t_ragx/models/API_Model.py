@@ -1,15 +1,21 @@
 import requests
 
-from .BaseModel import BaseModel
 from ._utils import DummyTokenizer
+from .BaseModel import BaseModel
 
 
 class APIModel(BaseModel):
     tokenizer = DummyTokenizer()
     model = None
 
-    def __init__(self, host='localhost', port='11434', endpoint='/api/generate', model="t_ragx_mistral",
-                 protocol="http"):
+    def __init__(
+        self,
+        host="localhost",
+        port="11434",
+        endpoint="/api/generate",
+        model="t_ragx_mistral",
+        protocol="http",
+    ):
         self.host = host
         self.port = port
         self.endpoint = endpoint
@@ -26,20 +32,19 @@ class APIModel(BaseModel):
             data = {
                 "model": self.model,
                 "prompt": t,
-                'stream': False,
-                **generation_config
+                "stream": False,
+                **generation_config,
             }
 
-            r = requests.post(f"{self.protocol}://{self.host}:{self.port}{self.endpoint}", json=data)
+            r = requests.post(
+                f"{self.protocol}://{self.host}:{self.port}{self.endpoint}", json=data
+            )
             assert r.status_code == 200, f"Failed to generate {t}"
-            out_text.append(r.json()['response'])
+            out_text.append(r.json()["response"])
 
         return out_text
 
-    def tokenize(self,
-                 text_list=None,
-                 *args, **kwargs
-                 ):
+    def tokenize(self, text_list=None, *args, **kwargs):
         return text_list
 
     @staticmethod

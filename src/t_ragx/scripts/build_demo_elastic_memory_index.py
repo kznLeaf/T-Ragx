@@ -7,7 +7,9 @@ from elasticsearch import Elasticsearch
 from ..utils.elastic import upload_df
 
 INDEX = "translation_memory_demo"
-DEMO_MEMORY_FOLDER_URL = "https://t-ragx-public.s3.us-west-004.backblazeb2.com/t-ragx-public/memory/demo"
+DEMO_MEMORY_FOLDER_URL = (
+    "https://t-ragx-public.s3.us-west-004.backblazeb2.com/t-ragx-public/memory/demo"
+)
 
 es_client = Elasticsearch()
 
@@ -20,4 +22,4 @@ data_index = json.loads(response.read())
 for data_file in data_index:
     file_url = f"{DEMO_MEMORY_FOLDER_URL}/{data_file['file_name']}"
     df = pd.read_parquet(file_url)
-    upload_df(df, es_client, id_key=data_file['source_lang'])
+    upload_df(df, es_client, id_key=data_file["source_lang"])

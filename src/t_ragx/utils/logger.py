@@ -1,14 +1,15 @@
 import logging
 import sys
-from typing import Optional, Dict
 
-from colorama import Fore, Back, Style
+from colorama import Back, Fore, Style
 
 
 class ColoredFormatter(logging.Formatter):
     """Colored log formatter."""
 
-    def __init__(self, *args, colors: Optional[Dict[str, str]] = None, **kwargs) -> None:
+    def __init__(
+        self, *args, colors: dict[str, str] | None = None, **kwargs
+    ) -> None:
         """Initialize the formatter with specified format strings."""
 
         super().__init__(*args, **kwargs)
@@ -18,22 +19,23 @@ class ColoredFormatter(logging.Formatter):
     def format(self, record) -> str:
         """Format the specified record as text."""
 
-        record.color = self.colors.get(record.levelname, '')
+        record.color = self.colors.get(record.levelname, "")
         record.reset = Style.RESET_ALL
 
         return super().format(record)
 
 
 formatter = ColoredFormatter(
-    '{asctime} {color}[{levelname:.1s}] {message}{reset}',
-    style='{', datefmt='%Y-%m-%d %H:%M:%S',
+    "{asctime} {color}[{levelname:.1s}] {message}{reset}",
+    style="{",
+    datefmt="%Y-%m-%d %H:%M:%S",
     colors={
-        'DEBUG': Fore.CYAN + Style.BRIGHT,
-        'INFO': Fore.GREEN + Style.BRIGHT,
-        'WARNING': Fore.YELLOW + Style.BRIGHT,
-        'ERROR': Fore.RED + Style.BRIGHT,
-        'CRITICAL': Fore.RED + Style.BRIGHT + Back.YELLOW,
-    }
+        "DEBUG": Fore.CYAN + Style.BRIGHT,
+        "INFO": Fore.GREEN + Style.BRIGHT,
+        "WARNING": Fore.YELLOW + Style.BRIGHT,
+        "ERROR": Fore.RED + Style.BRIGHT,
+        "CRITICAL": Fore.RED + Style.BRIGHT + Back.YELLOW,
+    },
 )
 
 handler = logging.StreamHandler(sys.stdout)

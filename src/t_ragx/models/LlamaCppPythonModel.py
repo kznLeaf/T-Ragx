@@ -2,8 +2,8 @@ import logging
 
 from llama_cpp import Llama
 
-from .BaseModel import BaseModel
 from ._utils import DummyTokenizer
+from .BaseModel import BaseModel
 
 logging.getLogger("llama-cpp-python").setLevel(logging.WARNING)
 
@@ -12,16 +12,17 @@ class LlamaCppPythonModel(BaseModel):
     tokenizer = DummyTokenizer()
     model = None
 
-    def __init__(self,
-                 repo_id="rayliuca/TRagx-GGUF-NeuralOmniBeagle-7B",
-                 filename="*Q4_K_M*",
-                 # see https://huggingface.co/rayliuca/TRagx-GGUF-NeuralOmniBeagle-7B/tree/main
-                 # for filename formats
-                 model=None,
-                 chat_format="mistral-instruct",
-                 reset_model=True,
-                 model_config={'n_ctx': 2048},
-                 ):
+    def __init__(
+        self,
+        repo_id="rayliuca/TRagx-GGUF-NeuralOmniBeagle-7B",
+        filename="*Q4_K_M*",
+        # see https://huggingface.co/rayliuca/TRagx-GGUF-NeuralOmniBeagle-7B/tree/main
+        # for filename formats
+        model=None,
+        chat_format="mistral-instruct",
+        reset_model=True,
+        model_config={"n_ctx": 2048},
+    ):
 
         self.reset_model = reset_model
         if model is None:
@@ -29,7 +30,7 @@ class LlamaCppPythonModel(BaseModel):
                 repo_id=repo_id,
                 filename=filename,
                 chat_format=chat_format,
-                **model_config
+                **model_config,
             )
         self.model = model
         super().__init__(model_id="Dummy", tokenizer=self.tokenizer, model=model)
@@ -39,8 +40,8 @@ class LlamaCppPythonModel(BaseModel):
             input_text_list = [input_text_list]
 
         default_generation_config = {
-            'max_tokens': 100,  # this is the max new token equivalent
-            'stop': ["[INST]", "[/INST]", "<s>", "</s>"]
+            "max_tokens": 100,  # this is the max new token equivalent
+            "stop": ["[INST]", "[/INST]", "<s>", "</s>"],
         }
 
         for k in default_generation_config:
@@ -49,26 +50,17 @@ class LlamaCppPythonModel(BaseModel):
 
         out_text = []
         for t in input_text_list:
-            messages = [{
-                "role": "user",
-                "content": t
-            }]
+            messages = [{"role": "user", "content": t}]
 
             if self.reset_model:
                 self.model.reset()
-            output = self.model.create_chat_completion(
-                messages,
-                **generation_config
-            )
+            output = self.model.create_chat_completion(messages, **generation_config)
 
-            out_text.append(output['choices'][0]['message']['content'])
+            out_text.append(output["choices"][0]["message"]["content"])
 
         return out_text
 
-    def tokenize(self,
-                 text_list=None,
-                 *args, **kwargs
-                 ):
+    def tokenize(self, text_list=None, *args, **kwargs):
         return text_list
 
     @staticmethod

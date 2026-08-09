@@ -7,10 +7,10 @@ import pandas as pd
 from elasticsearch import Elasticsearch
 from tqdm.notebook import tqdm
 
+from ..models.constants import LANG_BY_LANG_CODE
+from ..processors.constants import DEFAULT_MEMORY_INDEX
 from .heuristic import clean_text, is_noise
 from .heuristic import lang_detect as heuristic_lang_detect
-from ..processors.constants import DEFAULT_MEMORY_INDEX
-from ..models.constants import LANG_BY_LANG_CODE
 
 logger = logging.getLogger("t_ragx")
 
@@ -31,8 +31,10 @@ def index_doc(df, index="translation_memory_demo"):
         for k in record:
             if record[k] is None:
                 record.pop(k)
-        yield ('{ "index" : { "_index" : "%s", "_id": "%s"}}' % (
-            index, sha1(record[record['id_key']].encode('utf8')).hexdigest()))
+        yield (
+            '{ "index" : { "_index" : "%s", "_id": "%s"}}'
+            % (index, sha1(record[record["id_key"]].encode("utf8")).hexdigest())
+        )
         yield json.dumps(record, default=int)
 
 
@@ -59,18 +61,20 @@ def upsert_doc(df: pd.DataFrame, index: str = None):
 
         for k in pop_list:
             record.pop(k)
-        yield ('{ "update" : {"_index" : "%s", "_id" : "%s", "retry_on_conflict" : 3} }' % (
-            index, sha1(record[record['id_key']].encode('utf8')).hexdigest()))
+        yield (
+            '{ "update" : {"_index" : "%s", "_id" : "%s", "retry_on_conflict" : 3} }'
+            % (index, sha1(record[record["id_key"]].encode("utf8")).hexdigest())
+        )
         yield '{ "doc" : %s, "doc_as_upsert" : true }' % json.dumps(record, default=int)
 
 
-def filter_df(df: pd.DataFrame, source_lang: str = 'ja', lang_cols: list = None):
+def filter_df(df: pd.DataFrame, source_lang: str = "ja", lang_cols: list = None):
     if lang_cols is None:
         lang_cols = list(LANG_BY_LANG_CODE.keys())
 
     lang_cols = list(set(lang_cols).intersection(df.columns))
 
-    df.dropna(subset=lang_cols, how='all', inplace=True)
+    df.dropna(subset=lang_cols, how="all", inplace=True)
     df.drop_duplicates(subset=[source_lang], inplace=True)
     df[source_lang] = df[source_lang].apply(clean_text)
     df = df[~df[source_lang].map(is_noise)]
@@ -80,16 +84,12 @@ def filter_df(df: pd.DataFrame, source_lang: str = 'ja', lang_cols: list = None)
         df = df[~df[c].str.contains("\n", na=False)]
 
     for c in lang_cols:
-        if c in ['ja', 'zh']:
+        if c in ["ja", "zh"]:
             str_len = df[c].str.len()
-            df = df[
-                ((350 > str_len) & (str_len > 4)) | (str_len.isna())
-                ]
-        elif c in ['en']:
+            df = df[((350 > str_len) & (str_len > 4)) | (str_len.isna())]
+        elif c in ["en"]:
             word_count = df[c].str.split(" ").str.len()
-            df = df[
-                ((100 > word_count) & (word_count > 3)) | (word_count.isna())
-                ]
+            df = df[((100 > word_count) & (word_count > 3)) | (word_count.isna())]
 
     for c in lang_cols:
         detected_lang = df[c].apply(heuristic_lang_detect)
@@ -100,8 +100,13 @@ def filter_df(df: pd.DataFrame, source_lang: str = 'ja', lang_cols: list = None)
     return df
 
 
-def upload_df(df: pd.DataFrame, es_client: Elasticsearch, id_key: str = 'ja', batch_size: int = 10000,
-              index: str = None) -> None:
+def upload_df(
+    df: pd.DataFrame,
+    es_client: Elasticsearch,
+    id_key: str = "ja",
+    batch_size: int = 10000,
+    index: str = None,
+) -> None:
     """
     upload_df
 
@@ -117,7 +122,7 @@ def upload_df(df: pd.DataFrame, es_client: Elasticsearch, id_key: str = 'ja', ba
 
     """
     df = filter_df(df, source_lang=id_key)
-    df['id_key'] = id_key
+    df["id_key"] = id_key
     if len(df) < 1:
         print("Empty dataset")
         return
@@ -129,14 +134,16 @@ def upload_df(df: pd.DataFrame, es_client: Elasticsearch, id_key: str = 'ja', ba
             raise r
 
 
-def csv_to_elastic(file_path,
-                   id_key='ja',
-                   elasticsearch_host: str = "localhost",
-                   es_client: Elasticsearch = None,
-                   batch_size=10000,
-                   read_csv_config: dict = {},
-                   index=None,
-                   elastic_client_args: dict = {}):
+def csv_to_elastic(
+    file_path,
+    id_key="ja",
+    elasticsearch_host: str = "localhost",
+    es_client: Elasticsearch = None,
+    batch_size=10000,
+    read_csv_config: dict = {},
+    index=None,
+    elastic_client_args: dict = {},
+):
     """
     Upload a CSV file to Elasticsearch
     The input csv should be parallel texts with the language code as their header
@@ -167,7 +174,7 @@ def csv_to_elastic(file_path,
     if es_client is None:
         es_client = Elasticsearch(
             elasticsearch_host,  # Elasticsearch endpoint
-            **elastic_client_args
+            **elastic_client_args,
         )
 
     df = pd.read_csv(file_path, **read_csv_config)
