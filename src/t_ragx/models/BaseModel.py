@@ -1,6 +1,9 @@
 import abc
 
+import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
+
+from t_ragx.utils.device import get_torch_device
 
 from .constants import LANG_BY_LANG_CODE
 
@@ -39,7 +42,8 @@ class BaseModel(metaclass=abc.ABCMeta):
     tokenizer = None
     model = None
 
-    def __init__(self, model_id, adapter=None, tokenizer=None, model=None):
+    def __init__(self, model_id, adapter=None, tokenizer=None, model=None, device=None):
+        self.device = get_torch_device(device)
 
         if tokenizer is None:
             tokenizer = AutoTokenizer.from_pretrained(
@@ -53,7 +57,13 @@ class BaseModel(metaclass=abc.ABCMeta):
                 tokenizer.pad_token = tokenizer.unk_token
 
         if model is None:
-            model = AutoModelForCausalLM.from_pretrained(model_id, device_map="auto")
+            load_kwargs = {}
+            if self.device.type == "cuda":
+                load_kwargs["device_map"] = "auto"
+            elif self.device.type == "mps":
+                load_kwargs["torch_dtype"] = torch.float16
+
+            model = AutoModelForCausalLM.from_pretrained(model_id, **load_kwargs)
             if adapter is not None:
                 if isinstance(adapter, list):
                     for a in adapter:
@@ -64,6 +74,9 @@ class BaseModel(metaclass=abc.ABCMeta):
                     ValueError(
                         "the adapter parameter must be either string or a list of strings"
                     )
+
+            if self.device.type == "mps":
+                model = model.to(self.device)
 
             model = model.eval()
 

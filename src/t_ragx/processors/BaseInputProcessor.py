@@ -2,12 +2,12 @@ import abc
 
 import datasets
 import pandas as pd
-import torch
 from elasticsearch import Elasticsearch
 from elasticsearch import client as elastic_client
 from jinja2 import Template as JinjaTemplate
 from tqdm.autonotebook import tqdm
 
+from ..utils.device import get_default_device_name
 from ..utils.heuristic import clean_text
 from ._utils import file_cacher, get_glossary, merge_glossary_index
 from .constants import DEFAULT_GLOSSARY_PARQUET_FOLDER
@@ -25,9 +25,7 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
         device=None,
         prompt_template: str | JinjaTemplate | None = None,
     ):
-        self.device = device
-        if device is None:
-            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = device if device is not None else get_default_device_name()
 
         self.es_client = None
         self.general_memory_elastic_index = None

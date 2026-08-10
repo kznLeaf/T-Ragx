@@ -2,6 +2,8 @@ import logging
 
 from llama_cpp import Llama
 
+from t_ragx.utils.device import get_llama_cpp_gpu_layers
+
 from ._utils import DummyTokenizer
 from .BaseModel import BaseModel
 
@@ -26,11 +28,14 @@ class LlamaCppPythonModel(BaseModel):
 
         self.reset_model = reset_model
         if model is None:
+            llama_config = dict(model_config)
+            if "n_gpu_layers" not in llama_config:
+                llama_config["n_gpu_layers"] = get_llama_cpp_gpu_layers()
             model = Llama.from_pretrained(
                 repo_id=repo_id,
                 filename=filename,
                 chat_format=chat_format,
-                **model_config,
+                **llama_config,
             )
         self.model = model
         super().__init__(model_id="Dummy", tokenizer=self.tokenizer, model=model)

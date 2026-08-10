@@ -1,3 +1,5 @@
+# Legacy Conda environment (Python 3.10).
+# For new setups, prefer uv: https://docs.astral.sh/uv/
 name: t_ragx
 channels:
   - nvidia

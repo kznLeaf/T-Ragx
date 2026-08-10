@@ -69,7 +69,30 @@ Note: you can access preview read-only T-Ragx Elasticsearch services at `https:/
 
 
 #### Environment
-##### (Recommended) Conda / Mamba
+##### (Recommended) uv
+Install [uv](https://docs.astral.sh/uv/), then from the project root:
+
+```bash
+uv sync --all-groups
+```
+
+This creates a `.venv` with Python 3.10 and installs all dependencies from `uv.lock`.
+
+On Apple Silicon, PyTorch and COMET inference automatically use **Metal (MPS)** when available. The `llama-cpp-python` backend offloads layers to Metal by default (`n_gpu_layers=-1`). Override with:
+
+```bash
+export T_RAGX_DEVICE=mps   # default on Apple Silicon
+export T_RAGX_DEVICE=cpu   # force CPU
+```
+
+Run commands inside the environment:
+
+```bash
+uv run python test_environment.py
+uv run python -c "import t_ragx"
+```
+
+##### Conda / Mamba
 Download the conda [`environment.yml` file](https://github.com/rayliuca/T-Ragx/blob/main/environment.yml) and run:
 
 ```bash
@@ -79,14 +102,19 @@ conda env create -f environment.yml
 # mamba env create -f environment.yml
 ```
 
-Which will crate a `t_ragx` environment that's compatible with this project
+Which will create a `t_ragx` environment that's compatible with this project
 
 ##### pip
-Download the [`requirment.txt` file](https://github.com/rayliuca/T-Ragx/blob/main/requirements.txt) and run:
+For pip-only setups, use the exported lockfile:
 
-Use your favourite virtual environment, and run:
+```bash
+pip install -r requirements.txt
+pip install -e .
+```
 
-`pip install -r requirment.txt`
+Or install from PyPI:
+
+`pip install t-ragx`
 
 
 ### Examples

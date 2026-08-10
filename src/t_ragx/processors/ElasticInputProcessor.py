@@ -1,7 +1,6 @@
 import logging
 from operator import itemgetter
 
-import torch
 from elasticsearch import Elasticsearch
 from elasticsearch import client as elastic_client
 from Levenshtein import distance
@@ -155,10 +154,7 @@ class ElasticInputProcessor(BaseInputProcessor):
         self,
         device=None,
     ):
-        self.device = device
-        if device is None:
-            self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        super().__init__()
+        super().__init__(device=device)
 
     def load_general_translation(
         self,

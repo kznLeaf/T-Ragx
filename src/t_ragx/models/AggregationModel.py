@@ -1,6 +1,8 @@
 import pandas as pd
 from comet import download_model, load_from_checkpoint
 
+from t_ragx.utils.device import get_comet_predict_kwargs
+
 from .LangDetectModel import FastTextLangDetectModel
 
 
@@ -25,7 +27,9 @@ class CometAggregationModel:
             {"src": source_text[0], "mt": out_text_list[i], "ref": ""}
             for i in range(len(out_text_list))
         ]
-        scores = self.model.predict(comet_data, batch_size=8, gpus=1)
+        scores = self.model.predict(
+            comet_data, batch_size=8, **get_comet_predict_kwargs()
+        )
         out_score = scores.scores
         for i in range(len(out_score)):
             if self.get_lang(out_text_list[i]) != target_lang_code:
