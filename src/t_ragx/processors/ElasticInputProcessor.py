@@ -182,7 +182,6 @@ class ElasticInputProcessor(BaseInputProcessor):
 
         self.general_memory_elastic_index = elastic_index
 
-
     def search_general_memory(self, *args, **kwargs):
         return self.search_memory(*args, **kwargs)
 

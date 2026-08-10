@@ -80,7 +80,6 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
 
         self.general_memory_elastic_index = index_key
 
-
     def load_task_translation(self):
         """
         Load the general translation examples
@@ -142,7 +141,6 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
             )
         ).to_dict("index")
 
-
     def load_task_glossary(self, glossary_parquet_path, glossary_index):
         # raise NotImplementedError()
         task_glossary_df = pd.read_parquet(file_cacher(glossary_parquet_path))
@@ -154,7 +152,6 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
         glossary_dict = task_glossary_df.to_dict("index")
 
         self.task_glossary[glossary_index] = glossary_dict
-
 
     def batch_search_glossary(
         self,

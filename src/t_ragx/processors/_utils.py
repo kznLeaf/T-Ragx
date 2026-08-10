@@ -21,7 +21,14 @@ def en_text_search(text, keyword):
         return False
     text = text.casefold()
     keyword = keyword.casefold()
-    if f" {keyword} " in text or text == keyword or len(keyword) - 1 > len(text) and text[: len(keyword) + 1] == keyword + " " or len(keyword) - 1 > len(text) and text[-len(keyword) + 1 :] == " " + keyword:
+    if (
+        f" {keyword} " in text
+        or text == keyword
+        or len(keyword) - 1 > len(text)
+        and text[: len(keyword) + 1] == keyword + " "
+        or len(keyword) - 1 > len(text)
+        and text[-len(keyword) + 1 :] == " " + keyword
+    ):
         return True
     return False
 

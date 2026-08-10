@@ -9,7 +9,6 @@
   <br/>
 </p>
 
-
 <h3 align="center">
     <p>Enhancing Translation with RAG-Powered Large Language Models</p>
 </h3>
@@ -17,7 +16,7 @@
 <br>
 
 T-Ragx Demo: <a target="_blank" href="https://colab.research.google.com/github/rayliuca/T-Ragx/blob/main/examples/T_Ragx_Demo.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
 ## TL;DR
@@ -41,15 +40,16 @@ T-Ragx Demo: <a target="_blank" href="https://colab.research.google.com/github/r
 - Demonstrated high recall for valid translation memories and glossaries, including previous translations and character names
 - Surpassed the performance of the native [TowerInstruct](https://huggingface.co/Unbabel/TowerInstruct-7B-v0.2) model in three (Ja<->En, Zh->En) out of the four WMT23 language direction tested
 - Outperformed DeepL in translating the Japanese web novel "That Time I Got Reincarnated as a Slime" into Chinese using in-task RAG
-    - Japanese to Chinese translation improvements:
-        - +29% sacrebleu
-        - +0.4% comet22
+  - Japanese to Chinese translation improvements:
+    - +29% sacrebleu
+    - +0.4% comet22
 
- 👉[***See the write-up for more details***](https://github.com/rayliuca/T-Ragx/tree/main/reports)📜
+👉[_**See the write-up for more details**_](https://github.com/rayliuca/T-Ragx/tree/main/reports)📜
 
 ## Getting Started
 
 ### Install
+
 Simply run:
 
 `pip install t-ragx`
@@ -58,18 +58,17 @@ or if you are feeling lucky:
 
 `pip install git+https://github.com/rayliuca/T-Ragx.git`
 
-
 ### Elasticsearch
 
 See the [wiki page instructions](https://github.com/rayliuca/T-Ragx/wiki/Getting-Started#install-elasticsearch)
 
-
 Note: you can access preview read-only T-Ragx Elasticsearch services at `https://t-ragx-fossil.rayliu.ca` and `https://t-ragx-fossil2.rayliu.ca`
 (But you will need a personal Elasticsearch service to add your in-task memories)
 
-
 #### Environment
+
 ##### (Recommended) uv
+
 Install [uv](https://docs.astral.sh/uv/), then from the project root:
 
 ```bash
@@ -93,6 +92,7 @@ uv run python -c "import t_ragx"
 ```
 
 ##### Conda / Mamba
+
 Download the conda [`environment.yml` file](https://github.com/rayliuca/T-Ragx/blob/main/environment.yml) and run:
 
 ```bash
@@ -105,6 +105,7 @@ conda env create -f environment.yml
 Which will create a `t_ragx` environment that's compatible with this project
 
 ##### pip
+
 For pip-only setups, use the exported lockfile:
 
 ```bash
@@ -116,9 +117,7 @@ Or install from PyPI:
 
 `pip install t-ragx`
 
-
 ### Examples
-
 
 Initiate the input processor:
 
@@ -180,13 +179,14 @@ t_ragx_translator.batch_translate(
 
 ## Models
 
-Note: you could use *any* LLMs by using the API models (i.e. `OllamaModel` or `OpenAIModel`) or extending the `t_ragx.models.BaseModel` class
+Note: you could use _any_ LLMs by using the API models (i.e. `OllamaModel` or `OpenAIModel`) or extending the `t_ragx.models.BaseModel` class
 
 The following models were finetuned using the T-Ragx prompts, so they might work a bit better than some of the off-the-shelve models with T-Ragx
 
 ### QLoRA Models:
+
 | Source Model                                                                                    | Model Type  | Quantization                            | Fine-tuned Model                                                                                                    |
-|-------------------------------------------------------------------------------------------------|-------------|-----------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| ----------------------------------------------------------------------------------------------- | ----------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | [mistralai/Mistral-7B-Instruct-v0.2](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2) | LoRA        |                                         | [rayliuca/TRagx-Mistral-7B-Instruct-v0.2](https://huggingface.co/rayliuca/TRagx-Mistral-7B-Instruct-v0.2)           |
 |                                                                                                 | merged AWQ  | AWQ                                     | [rayliuca/TRagx-AWQ-Mistral-7B-Instruct-v0.2](https://huggingface.co/rayliuca/TRagx-AWQ-Mistral-7B-Instruct-v0.2)   |
 |                                                                                                 | merged GGUF | Q3_K, Q4_K_M, Q5_K_M, Q5_K_S, Q6_K, F32 | [rayliuca/TRagx-GGUF-Mistral-7B-Instruct-v0.2](https://huggingface.co/rayliuca/TRagx-GGUF-Mistral-7B-Instruct-v0.2) |
@@ -197,28 +197,22 @@ The following models were finetuned using the T-Ragx prompts, so they might work
 |                                                                                                 | merged GPTQ | GPTQ                                    | [rayliuca/TRagx-GPTQ-internlm2-7b](https://huggingface.co/rayliuca/TRagx-GPTQ-internlm2-7b)                         |
 | [Unbabel/TowerInstruct-7B-v0.2](https://huggingface.co/Unbabel/TowerInstruct-7B-v0.2)           | LoRA        |                                         | [rayliuca/TRagx-TowerInstruct-7B-v0.2](https://huggingface.co/rayliuca/TRagx-TowerInstruct-7B-v0.2)                 |
 
-
-
 ## Data Sources
+
 All of the datasets used in the project
 
-
 |                                       Dataset                                        | Translation Memory |  Glossary  | Training | Testing |                                            License                                             |
-|:------------------------------------------------------------------------------------:|:------------------:|:----------:|:--------:|:-------:|:----------------------------------------------------------------------------------------------:|
-|           [OpenMantra](https://github.com/mantra-inc/open-mantra-dataset)            |         ✅          |            |    ✅     |         | [CC BY-NC 4.0](https://github.com/mantra-inc/open-mantra-dataset?tab=License-1-ov-file#readme) |
-|                    [WMT](https://machinetranslate.org/wmt) < 2023                    |         ✅          |            |    ✅     |         |           [for research](https://www2.statmt.org/wmt23/translation-task.html#_data)            |
-|              [ParaMed](https://huggingface.co/datasets/bigbio/paramed)               |         ✅          |            |    ✅     |         |                  [cc-by-4.0](https://huggingface.co/datasets/bigbio/paramed)                   |
-|          [ted_talks_iwslt](https://huggingface.co/datasets/ted_talks_iwslt)          |         ✅          |            |    ✅     |         |                   [cc-by-nc-nd-4.0](https://nlp.stanford.edu/projects/jesc/)                   |
-|                   [JESC](https://nlp.stanford.edu/projects/jesc/)                    |         ✅          |            |    ✅     |         |                    [CC BY-SA 4.0](https://nlp.stanford.edu/projects/jesc/)                     |
-|                [MTNT](https://pmichel31415.github.io/mtnt/index.html)                |         ✅          |            |          |         |           [Custom/ Reddit API](https://pmichel31415.github.io/mtnt/index.html#licen)           |
-| [WCC-JC](https://github.com/zhang-jinyi/Web-Crawled-Corpus-for-Japanese-Chinese-NMT) |         ✅          |            |    ✅     |         |   [for research](https://github.com/zhang-jinyi/Web-Crawled-Corpus-for-Japanese-Chinese-NMT)   |
-|                       [ASPEC](https://jipsti.jst.go.jp/aspec/)                       |                    |            |    ✅     |         |              [custom, for research](https://jipsti.jst.go.jp/aspec/terms_en.html)              |
-|               All other ja-en/zh-en [OPUS](https://opus.nlpl.eu/) data               |         ✅          |            |          |         |                       mix of open licenses: check https://opus.nlpl.eu/                        |
-|                        [Wikidata](https://www.wikidata.org/)                         |                    |     ✅      |          |         |                    [CC0](https://www.wikidata.org/wiki/Wikidata:Copyright)                     |
+| :----------------------------------------------------------------------------------: | :----------------: | :--------: | :------: | :-----: | :--------------------------------------------------------------------------------------------: |
+|           [OpenMantra](https://github.com/mantra-inc/open-mantra-dataset)            |         ✅         |            |    ✅    |         | [CC BY-NC 4.0](https://github.com/mantra-inc/open-mantra-dataset?tab=License-1-ov-file#readme) |
+|                    [WMT](https://machinetranslate.org/wmt) < 2023                    |         ✅         |            |    ✅    |         |           [for research](https://www2.statmt.org/wmt23/translation-task.html#_data)            |
+|              [ParaMed](https://huggingface.co/datasets/bigbio/paramed)               |         ✅         |            |    ✅    |         |                  [cc-by-4.0](https://huggingface.co/datasets/bigbio/paramed)                   |
+|          [ted_talks_iwslt](https://huggingface.co/datasets/ted_talks_iwslt)          |         ✅         |            |    ✅    |         |                   [cc-by-nc-nd-4.0](https://nlp.stanford.edu/projects/jesc/)                   |
+|                   [JESC](https://nlp.stanford.edu/projects/jesc/)                    |         ✅         |            |    ✅    |         |                    [CC BY-SA 4.0](https://nlp.stanford.edu/projects/jesc/)                     |
+|                [MTNT](https://pmichel31415.github.io/mtnt/index.html)                |         ✅         |            |          |         |           [Custom/ Reddit API](https://pmichel31415.github.io/mtnt/index.html#licen)           |
+| [WCC-JC](https://github.com/zhang-jinyi/Web-Crawled-Corpus-for-Japanese-Chinese-NMT) |         ✅         |            |    ✅    |         |   [for research](https://github.com/zhang-jinyi/Web-Crawled-Corpus-for-Japanese-Chinese-NMT)   |
+|                       [ASPEC](https://jipsti.jst.go.jp/aspec/)                       |                    |            |    ✅    |         |              [custom, for research](https://jipsti.jst.go.jp/aspec/terms_en.html)              |
+|               All other ja-en/zh-en [OPUS](https://opus.nlpl.eu/) data               |         ✅         |            |          |         |                       mix of open licenses: check https://opus.nlpl.eu/                        |
+|                        [Wikidata](https://www.wikidata.org/)                         |                    |     ✅     |          |         |                    [CC0](https://www.wikidata.org/wiki/Wikidata:Copyright)                     |
 |          [Tensei Shitara Slime Datta Ken Wiki](https://tensura.fandom.com/)          |                    | ☑️ in task |          |         |                          [CC BY-SA](https://www.fandom.com/licensing)                          |
-|                      [WMT 2023](https://www2.statmt.org/wmt23/)                      |                    |            |          |    ✅    |           [for research](https://www2.statmt.org/wmt23/translation-task.html#_data)            |
-|             Tensei Shitara Slime Datta Ken Web Novel & web translations              |     ☑️ in task     |            |          |    ✅    |                            Not used for training or redistribution                             |
-
-
-
-
+|                      [WMT 2023](https://www2.statmt.org/wmt23/)                      |                    |            |          |   ✅    |           [for research](https://www2.statmt.org/wmt23/translation-task.html#_data)            |
+|             Tensei Shitara Slime Datta Ken Web Novel & web translations              |     ☑️ in task     |            |          |   ✅    |                            Not used for training or redistribution                             |

@@ -229,6 +229,7 @@ class BaseModel(metaclass=abc.ABCMeta):
         if search_result is None:
             search_result = {"glossary": [], "memory": []}
 
+        # NOTE: prompt template is here.
         chat = [
             {
                 "role": "user",
