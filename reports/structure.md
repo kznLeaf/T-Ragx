@@ -112,3 +112,19 @@ flowchart TB
     SR --> Prompt
     DOC --> Prompt
 ```
+
+函数调用关系：
+
+```mermaid
+flowchart TD
+    translate --> batch_translate
+    batch_translate --> batch_build_prompt
+    batch_build_prompt --> build_prompt
+    build_prompt --> glossary_to_text
+    build_prompt --> pretext_to_text
+    build_prompt --> trans_mem_to_text
+    batch_translate --> tokenize
+    batch_translate --> generate
+    batch_translate --> process_output
+    process_output --> clean_output
+```

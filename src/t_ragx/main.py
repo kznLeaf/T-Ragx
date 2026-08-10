@@ -41,7 +41,7 @@ class TRagx:
         if aggregate_model is not None:
             self.aggregate_model = aggregate_model
         else:
-            if len(self.generation_models) > 1:
+            if len(self.generation_models) > 1:  # 只有存在多个模型时才启用COMET
                 self.aggregate_model = CometAggregationModel()
 
     def __call__(self, *args, **kwargs):
