@@ -53,9 +53,9 @@ class LlamaCppPythonModel(BaseModel):
             "stop": ["[INST]", "[/INST]", "<s>", "</s>"],
         }
 
-        for k in default_generation_config:
-            if k not in generation_config:
-                generation_config[k] = default_generation_config[k]
+        for key, value in default_generation_config.items():
+            if key not in generation_config:
+                generation_config[key] = value
 
         out_text = []
         for t in input_text_list:

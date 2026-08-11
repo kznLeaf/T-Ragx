@@ -219,22 +219,22 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
                 source_lang=source_lang,
                 target_lang=target_lang,
             )
-            for k in general_glossary:
+            for glossary_key in general_glossary:
                 skip_flag = False
                 for existing_key in found_glossary:
-                    if k in existing_key:
+                    if glossary_key in existing_key:
                         # ignore glossary words being a component of a longer glossary word
                         skip_flag = True
                         break
                 if skip_flag:
                     continue
 
-                if k in found_glossary:
-                    found_glossary[k] = list(
-                        set(found_glossary[k] + general_glossary[k])
+                if glossary_key in found_glossary:
+                    found_glossary[glossary_key] = list(
+                        set(found_glossary[glossary_key] + general_glossary[glossary_key])
                     )
                 else:
-                    found_glossary[k] = general_glossary[k]
+                    found_glossary[glossary_key] = general_glossary[glossary_key]
 
         return found_glossary
 

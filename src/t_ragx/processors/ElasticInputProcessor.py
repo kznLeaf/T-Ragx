@@ -100,8 +100,13 @@ def search_elastic_with_retry(
                 task_index=task_index,
                 task_boost=task_boost,
             )
-        except:
-            pass
+        except Exception:
+            logger.debug(
+                "Elasticsearch search failed on attempt %s/%s",
+                i + 1,
+                retry,
+                exc_info=True,
+            )
     logger.warning("elastic time out")
     return []
 

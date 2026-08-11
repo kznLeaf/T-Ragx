@@ -33,9 +33,9 @@ class InternLM2Model(BaseModel):
             "return_tensors": "pt",
             "add_special_tokens": False,
         }
-        for k in default_tokenize_config:
-            if k not in tokenize_config:
-                tokenize_config[k] = default_tokenize_config[k]
+        for key, value in default_tokenize_config.items():
+            if key not in tokenize_config:
+                tokenize_config[key] = value
 
         return self.tokenizer.batch_encode_plus(text_list, **tokenize_config).to(
             self.model.device

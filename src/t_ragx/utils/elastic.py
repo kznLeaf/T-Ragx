@@ -152,10 +152,7 @@ def upload_df(
         return
     batch_idx = np.array_split(range(len(df)), max(int(len(df) / batch_size), 1))
     for select_idx in tqdm(batch_idx):
-        try:
-            r = es_client.bulk(upsert_doc(df.iloc[select_idx]), index)  # return a dict
-        except:
-            raise r
+        es_client.bulk(upsert_doc(df.iloc[select_idx]), index)
 
 
 def csv_to_elastic(

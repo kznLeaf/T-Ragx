@@ -62,7 +62,12 @@ Repository = "https://github.com/rayliuca/T-Ragx"
 where = ["src"]
 
 [dependency-groups]
-dev = ["black", "flake8"]
+dev = ["black", "flake8", "ruff"]
+
+[tool.ruff.lint.per-file-ignores]
+# Legacy PascalCase module filenames kept for import compatibility.
+"src/t_ragx/models/*.py" = ["N999"]
+"src/t_ragx/processors/*.py" = ["N999"]
 
 # Linux + CUDA: uncomment and set the CUDA wheel index for GPU PyTorch builds.
 # [[tool.uv.index]]
