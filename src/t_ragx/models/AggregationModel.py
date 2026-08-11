@@ -1,3 +1,6 @@
+from collections.abc import Callable
+from typing import Any
+
 import pandas as pd
 from comet import download_model, load_from_checkpoint
 
@@ -11,18 +14,20 @@ class CometAggregationModel:
     用于多模型选优
     """
 
-    model = None
+    model: Any
+    get_lang: Callable[[str], str | None]
 
     def __init__(
         self,
         model_id="Unbabel/wmt22-cometkiwi-da",
-        get_lang_func=None,
+        get_lang_func: Callable[[str], str | None] | None = None,
     ):
-        self.get_lang = get_lang_func
         if get_lang_func is None:
             fast_text_lang_detect_model = FastTextLangDetectModel()
             # 调用 fasttext 检测输出语言是否和目标语言相同
             self.get_lang = fast_text_lang_detect_model.get_lang
+        else:
+            self.get_lang = get_lang_func
 
         model_path = download_model(model_id)
         self.model = load_from_checkpoint(model_path)
