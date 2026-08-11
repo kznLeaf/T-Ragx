@@ -32,8 +32,9 @@ def index_doc(df, index="translation_memory_demo"):
             if record[k] is None:
                 record.pop(k)
         yield (
-            '{ "index" : { "_index" : "%s", "_id": "%s"}}'
-            % (index, sha1(record[record["id_key"]].encode("utf8")).hexdigest())
+            '{{ "index" : {{ "_index" : "{}", "_id": "{}"}}}}'.format(
+                index, sha1(record[record["id_key"]].encode("utf8")).hexdigest()
+            )
         )
         yield json.dumps(record, default=int)
 
@@ -46,8 +47,15 @@ def upsert_doc(df: pd.DataFrame, index: str = None):
         df:
         index:
 
-    Returns:
-
+    写入后的文档类似:
+        {
+          "_id": "a1b2c3...",
+          "_source": {
+            "ja": "こんにちは",
+            "en": "Hello",
+            "id_key": "ja"
+          }
+        }
     """
     if index is None:
         index = DEFAULT_MEMORY_INDEX
@@ -62,27 +70,37 @@ def upsert_doc(df: pd.DataFrame, index: str = None):
         for k in pop_list:
             record.pop(k)
         yield (
-            '{ "update" : {"_index" : "%s", "_id" : "%s", "retry_on_conflict" : 3} }'
-            % (index, sha1(record[record["id_key"]].encode("utf8")).hexdigest())
+            '{{ "update" : {{"_index" : "{}", "_id" : "{}", "retry_on_conflict" : 3}} }}'.format(
+                index, sha1(record[record["id_key"]].encode("utf8")).hexdigest()
+            )
         )
-        yield '{ "doc" : %s, "doc_as_upsert" : true }' % json.dumps(record, default=int)
+        # 有则更新，无则插入
+        yield f'{{ "doc" : {json.dumps(record, default=int)}, "doc_as_upsert" : true }}'
 
 
 def filter_df(df: pd.DataFrame, source_lang: str = "ja", lang_cols: list = None):
+    """
+    清洗写入 ES 之前的语句
+    """
+    # 确认要处理的语言列。为空则处理 en ja zh
     if lang_cols is None:
-        lang_cols = list(LANG_BY_LANG_CODE.keys())
+        lang_cols = list(LANG_BY_LANG_CODE.keys())  # en ja zh
 
+    # 只保留实际存在的列
     lang_cols = list(set(lang_cols).intersection(df.columns))
 
     df.dropna(subset=lang_cols, how="all", inplace=True)
     df.drop_duplicates(subset=[source_lang], inplace=True)
     df[source_lang] = df[source_lang].apply(clean_text)
+    # 去掉纯数字和日期
     df = df[~df[source_lang].map(is_noise)]
     df.reset_index(drop=True, inplace=True)
 
+    # 去掉含有换行符的数据
     for c in lang_cols:
         df = df[~df[c].str.contains("\n", na=False)]
 
+    # 按长度过滤
     for c in lang_cols:
         if c in ["ja", "zh"]:
             str_len = df[c].str.len()
@@ -91,8 +109,13 @@ def filter_df(df: pd.DataFrame, source_lang: str = "ja", lang_cols: list = None)
             word_count = df[c].str.split(" ").str.len()
             df = df[((100 > word_count) & (word_count > 3)) | (word_count.isna())]
 
+    # 统计每一列 日/英/中 字符数量，取最多的作为检测语言
+    # 删掉「列名语言」和「检测到的语言」不一致的行。
+    # 防止脏数据影响
     for c in lang_cols:
+        # 检测这一列中的每个文本
         detected_lang = df[c].apply(heuristic_lang_detect)
+        # 列名与该语言的检测语言一致，或者检测不到语言，都保留
         df = df[(c == detected_lang) | (detected_lang.isna())]
 
     df.reset_index(drop=True, inplace=True)
@@ -108,13 +131,13 @@ def upload_df(
     index: str = None,
 ) -> None:
     """
-    upload_df
+    upload_df 清洗语料 批量写入ES
 
     Args:
         df:
         es_client:
         id_key: The language column to hash (sha1) as ID. Duplicate records with common id will be merged.
-                        id_key should be in df.columns
+                        id_key should be in df.columns 默认值ja, 用于 sha 取 index，去重
         batch_size:
         index: Defaulted to be "translation_memory". Should be explicitly set for in-task memories
 
@@ -122,6 +145,7 @@ def upload_df(
 
     """
     df = filter_df(df, source_lang=id_key)
+    # 新增一列
     df["id_key"] = id_key
     if len(df) < 1:
         print("Empty dataset")
