@@ -119,7 +119,7 @@ class BaseModel(metaclass=abc.ABCMeta):
                 elif isinstance(adapter, str):
                     model.load_adapter(adapter)
                 else:
-                    ValueError(
+                    raise ValueError(
                         "the adapter parameter must be either string or a list of strings"
                     )
 
@@ -231,8 +231,8 @@ class BaseModel(metaclass=abc.ABCMeta):
         batch_text: list,
         source_lang_code="ja",
         target_lang_code="en",
-        batch_search_result: list = None,
-        batch_pre_text: list = None,
+        batch_search_result: list | None = None,
+        batch_pre_text: list | None = None,
         tokenize_config=None,
         generation_config=None,
     ):
@@ -273,8 +273,8 @@ class BaseModel(metaclass=abc.ABCMeta):
         text: str,
         source_lang_code="ja",
         target_lang_code="en",
-        search_result: list = None,
-        pre_text: list = None,
+        search_result: list | None = None,
+        pre_text: list | None = None,
         tokenize_config=None,
         generation_config=None,
     ):
@@ -307,8 +307,8 @@ class BaseModel(metaclass=abc.ABCMeta):
         text: list,
         source_lang_code="Japanese",
         target_lang_code="English",
-        search_result: list = None,
-        pre_text_list: list = None,
+        search_result: list | None = None,
+        pre_text_list: list | None = None,
     ):
         """为 batch 中每句分别构建 prompt，返回字符串列表。
 
@@ -355,7 +355,7 @@ class BaseModel(metaclass=abc.ABCMeta):
         source_lang_code="ja",
         target_lang_code="en",
         search_result=None,
-        pre_text: list = None,
+        pre_text: list | None = None,
     ):
         """为单句构建完整 chat prompt（术语 + 前文 + 记忆 + 翻译指令）。
 

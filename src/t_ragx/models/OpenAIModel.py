@@ -34,7 +34,9 @@ class OpenAIModel(APIModel):
             api_key=api_key,
         )
 
-    def generate(self, input_chat_list, generation_config={}):
+    def generate(self, input_chat_list, generation_config=None):
+        if generation_config is None:
+            generation_config = {}
         out_text = []
         for chat in input_chat_list:
             chat_completion = self.openai_client.chat.completions.create(

@@ -42,13 +42,19 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
         index_key="ja",
         elasticsearch_host: str = "localhost",
         es_client: elastic_client = None,
-        dataset_args={},
-        elastic_args={},
-        elastic_client_args={},
+        dataset_args=None,
+        elastic_args=None,
+        elastic_client_args=None,
     ):
         """
         Load the general translation examples
         """
+        if elastic_client_args is None:
+            elastic_client_args = {}
+        if elastic_args is None:
+            elastic_args = {}
+        if dataset_args is None:
+            dataset_args = {}
         self.general_memory = datasets.Dataset.from_pandas(
             pd.read_parquet(parquet_path), **dataset_args
         )
@@ -87,7 +93,7 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     def search_general_memory(
-        self, text, search_index: str = None, k=4, max_item_len=500, **search_kwargs
+        self, text, search_index: str | None = None, k=4, max_item_len=500, **search_kwargs
     ):
         """
         search general translation examples using elasticsearch

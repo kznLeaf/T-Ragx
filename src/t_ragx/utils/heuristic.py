@@ -68,6 +68,4 @@ def is_noise(text):
     if is_number(text):
         return True
 
-    if is_date(text):
-        return True
-    return False
+    return bool(is_date(text))

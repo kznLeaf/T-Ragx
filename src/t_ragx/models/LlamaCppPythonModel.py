@@ -23,9 +23,11 @@ class LlamaCppPythonModel(BaseModel):
         model=None,
         chat_format="mistral-instruct",
         reset_model=True,
-        model_config={"n_ctx": 2048},
+        model_config=None,
     ):
 
+        if model_config is None:
+            model_config = {"n_ctx": 2048}
         self.reset_model = reset_model
         if model is None:
             llama_config = dict(model_config)
@@ -40,7 +42,9 @@ class LlamaCppPythonModel(BaseModel):
         self.model = model
         super().__init__(model_id="Dummy", tokenizer=self.tokenizer, model=model)
 
-    def generate(self, input_text_list, generation_config={}):
+    def generate(self, input_text_list, generation_config=None):
+        if generation_config is None:
+            generation_config = {}
         if isinstance(input_text_list, str):
             input_text_list = [input_text_list]
 

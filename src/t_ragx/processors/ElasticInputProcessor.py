@@ -161,8 +161,8 @@ class ElasticInputProcessor(BaseInputProcessor):
         elastic_index="translation_memory",
         elasticsearch_host: str = "localhost",
         es_client: elastic_client = None,
-        elastic_args={},
-        elastic_client_args={},
+        elastic_args=None,
+        elastic_client_args=None,
         **kwargs,
     ):
         """
@@ -170,6 +170,10 @@ class ElasticInputProcessor(BaseInputProcessor):
         """
 
         # initiate the elastic index
+        if elastic_client_args is None:
+            elastic_client_args = {}
+        if elastic_args is None:
+            elastic_args = {}
         if es_client is None:
             es_client = Elasticsearch(
                 elasticsearch_host,  # Elasticsearch endpoint
@@ -188,7 +192,7 @@ class ElasticInputProcessor(BaseInputProcessor):
     def search_memory(
         self,
         text_list: list[str] | str,
-        search_index: str = None,
+        search_index: str | None = None,
         source_lang="ja",
         target_lang="en",
         top_k=10,

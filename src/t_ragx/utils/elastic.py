@@ -39,7 +39,7 @@ def index_doc(df, index="translation_memory_demo"):
         yield json.dumps(record, default=int)
 
 
-def upsert_doc(df: pd.DataFrame, index: str = None):
+def upsert_doc(df: pd.DataFrame, index: str | None = None):
     """
     Formatted upsert action generator helper to help upload records to Elasticsearch
 
@@ -78,7 +78,7 @@ def upsert_doc(df: pd.DataFrame, index: str = None):
         yield f'{{ "doc" : {json.dumps(record, default=int)}, "doc_as_upsert" : true }}'
 
 
-def filter_df(df: pd.DataFrame, source_lang: str = "ja", lang_cols: list = None):
+def filter_df(df: pd.DataFrame, source_lang: str = "ja", lang_cols: list | None = None):
     """
     清洗写入 ES 之前的语句
     """
@@ -128,7 +128,7 @@ def upload_df(
     es_client: Elasticsearch,
     id_key: str = "ja",
     batch_size: int = 10000,
-    index: str = None,
+    index: str | None = None,
 ) -> None:
     """
     upload_df 清洗语料 批量写入ES
@@ -164,9 +164,9 @@ def csv_to_elastic(
     elasticsearch_host: str = "localhost",
     es_client: Elasticsearch = None,
     batch_size=10000,
-    read_csv_config: dict = {},
+    read_csv_config: dict | None = None,
     index=None,
-    elastic_client_args: dict = {},
+    elastic_client_args: dict | None = None,
 ):
     """
     Upload a CSV file to Elasticsearch
@@ -195,6 +195,10 @@ def csv_to_elastic(
 
     """
 
+    if elastic_client_args is None:
+        elastic_client_args = {}
+    if read_csv_config is None:
+        read_csv_config = {}
     if es_client is None:
         es_client = Elasticsearch(
             elasticsearch_host,  # Elasticsearch endpoint

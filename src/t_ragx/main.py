@@ -50,30 +50,30 @@ class TRagx:
     def translate(
         self,
         text,
-        pre_text: list = None,
+        pre_text: list | None = None,
         search_glossary=True,
         search_memory=True,
-        memory_search_args: dict = None,
-        glossary_search_args: dict = None,
-        prompt_args: list[dict] = None,
-        generation_args: list[dict] = None,
+        memory_search_args: dict | None = None,
+        glossary_search_args: dict | None = None,
+        prompt_args: list[dict] | None = None,
+        generation_args: list[dict] | None = None,
     ):
         pass
 
     def batch_translate(
         self,
         text_list,
-        pre_text_list: list = None,
+        pre_text_list: list | None = None,
         batch_size=1,
         source_lang_code="ja",
         target_lang_code="en",
         search_glossary=True,
         search_memory=True,
-        memory_search_args: dict = None,
-        glossary_search_args: dict = None,
-        tokenize_args: list[dict] = None,
-        prompt_args: list[dict] = None,
-        generation_args: list[dict] = None,
+        memory_search_args: dict | None = None,
+        glossary_search_args: dict | None = None,
+        tokenize_args: list[dict] | None = None,
+        prompt_args: list[dict] | None = None,
+        generation_args: list[dict] | None = None,
     ):
 
         if pre_text_list is None:

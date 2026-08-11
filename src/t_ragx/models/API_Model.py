@@ -23,7 +23,9 @@ class APIModel(BaseModel):
         self.model = model
         super().__init__(model_id="Dummy", tokenizer=self.tokenizer, model=model)
 
-    def generate(self, input_text_list, generation_config={}):
+    def generate(self, input_text_list, generation_config=None):
+        if generation_config is None:
+            generation_config = {}
         if isinstance(input_text_list, str):
             input_text_list = [input_text_list]
 

@@ -46,10 +46,12 @@ class FastTextLangDetectModel(BaseLangDetectModel):
         self,
         repo_id="facebook/fasttext-language-identification",
         filename="model.bin",
-        hf_hub_args={},
+        hf_hub_args=None,
         *arg,
         **kwargs,
     ):
+        if hf_hub_args is None:
+            hf_hub_args = {}
         super().__init__(*arg, **kwargs)
         fasttext_langid_model_path = hf_hub_download(
             repo_id=repo_id, filename=filename, **hf_hub_args
