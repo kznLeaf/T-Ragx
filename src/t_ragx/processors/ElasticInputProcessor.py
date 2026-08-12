@@ -70,6 +70,7 @@ def rerank_elastic_result(elastic_result, source_lang, search_term, top_k=5):
 
         if source_lang not in hit["_source"]:
             continue
+        # 计算 Levenshtein
         hit["distance"] = distance(hit["_source"][source_lang], search_term)
         result_list.append(hit)
 
@@ -208,9 +209,12 @@ def _add_normed_distance(query_text, memory_hits):
 
 
 class ElasticInputProcessor(BaseInputProcessor):
-    """Default input processor backed by pre-built Elasticsearch translation memory indexes.
-
+    """
+    Default input processor backed by pre-built Elasticsearch translation memory indexes.
     Glossary loading and search are inherited from BaseInputProcessor.
+
+    重写 load_general_translation search_memory 两个方法
+    继承 batch_search_golssary, search_glossary
     """
 
     def __init__(self, device=None):

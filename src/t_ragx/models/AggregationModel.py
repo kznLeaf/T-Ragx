@@ -11,7 +11,7 @@ from .LangDetectModel import FastTextLangDetectModel
 
 class CometAggregationModel:
     """
-    用于多模型选优
+    基于 Unbabel/wmt22-cometkiwi-da 进行不同模型翻译结果选优
     """
 
     model: Any

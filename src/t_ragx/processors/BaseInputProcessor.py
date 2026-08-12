@@ -16,10 +16,16 @@ from .constants import DEFAULT_GLOSSARY_PARQUET_FOLDER
 class BaseInputProcessor(metaclass=abc.ABCMeta):
     """
     用于 RAG 检索，提供了
+
     加载翻译记忆 load_general_translation
+
     加载术语表 load_general_glossary() / load_task_glossary()
-    检索翻译记忆 search_memory() / search_general_memory()
-    检索术语的方法 search_glossary() / batch_search_glossary()
+
+    检索翻译记忆 search_memory(ES) / search_general_memory()
+
+    检索术语表 search_glossary() / batch_search_glossary()
+
+    唯一子类：ElasticInputProcessor
     """
 
     def __init__(
@@ -91,6 +97,7 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
     def load_task_translation(self):
         """
         Load the general translation examples
+        未实现
         """
         raise NotImplementedError()
 
@@ -129,6 +136,7 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
     def search_task_memory(self, client=None):
         """
         search in-task translation examples using elasticsearch
+        未实现
         """
         raise NotImplementedError()
 
@@ -155,7 +163,6 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
         ).to_dict("index")
 
     def load_task_glossary(self, glossary_parquet_path, glossary_index):
-        # raise NotImplementedError()
         task_glossary_df = pd.read_parquet(file_cacher(glossary_parquet_path))
         clean_index_dict = {k: clean_text(k) for k in task_glossary_df.index}
         task_glossary_df.rename(index=clean_index_dict, inplace=True)
@@ -264,7 +271,6 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
             lang_code=target_lang,
             source_lang=source_lang,
         )
-        # raise NotImplementedError()
 
     def search_task_glossary(
         self, text, task_index, max_k=10, source_lang="ja", target_lang="en"

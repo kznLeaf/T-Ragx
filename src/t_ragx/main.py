@@ -27,7 +27,7 @@ class TRagx:
             generation_models: a list of the T-Ragx models
             aggregate_model: a model that would choose the best translation without references. Currently only support
                                 t_ragx.models.AggregationModel.CometAggregationModel
-            input_processor: a T-Ragx input processor, 用于RAG检索
+            input_processor: a T-Ragx input processor, 用于 RAG 检索，None 则使用 ES 实现
         """
 
         self.input_processor = input_processor
@@ -58,12 +58,13 @@ class TRagx:
         prompt_args: list[dict] | None = None,
         generation_args: list[dict] | None = None,
     ):
+        # 未实现
         pass
 
     def batch_translate(
         self,
-        text_list,
-        pre_text_list: list | None = None,
+        text_list,  # 已完成句子切分
+        pre_text_list: list | None = None,  # See helper.py
         batch_size=1,
         source_lang_code="ja",
         target_lang_code="en",
@@ -96,19 +97,21 @@ class TRagx:
         if generation_args is None:
             generation_args = [{}] * len(text_list)
 
+        # 检索TM
         memory_results = [[]] * len(text_list)
         if search_memory:
+            # ES 子类搜索翻译记忆
             memory_results = self.input_processor.search_memory(
                 text_list, **memory_search_args
             )
 
+        # 检索术语表
         glossary_results = [[]] * len(text_list)
         if search_glossary:
             glossary_results = self.input_processor.batch_search_glossary(
                 text_list, **glossary_search_args
             )
 
-        generation_output_dict = {}
         for model_idx, generation_model, p_args, tok_args, gen_args in zip(
             range(len(self.generation_models)),
             self.generation_models,
@@ -134,6 +137,7 @@ class TRagx:
                     for i in range(len(batch_idx))
                 ]
 
+                # 调用特定模型的 batch_translate 方法
                 translated_text_list += generation_model.batch_translate(
                     batch_text,
                     source_lang_code=source_lang_code,
@@ -143,9 +147,13 @@ class TRagx:
                     tokenize_config=tok_args,
                     generation_config=gen_args,
                 )
+
+            generation_output_dict = {}
             generation_output_dict[model_idx] = translated_text_list
 
+        # 单模型
         generation_output = generation_output_dict[0]
+        # 多模型
         if len(generation_output_dict) > 1:
             generation_output = self.aggregate_model.combine_preds(
                 generation_output_dict, batch_text, target_lang_code=target_lang_code
