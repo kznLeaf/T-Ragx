@@ -27,7 +27,7 @@ class TRagx:
             generation_models: a list of the T-Ragx models
             aggregate_model: a model that would choose the best translation without references. Currently only support
                                 t_ragx.models.AggregationModel.CometAggregationModel
-            input_processor: a T-Ragx input processor
+            input_processor: a T-Ragx input processor, 用于RAG检索
         """
 
         self.input_processor = input_processor

@@ -15,9 +15,11 @@ from .constants import DEFAULT_GLOSSARY_PARQUET_FOLDER
 
 class BaseInputProcessor(metaclass=abc.ABCMeta):
     """
-    The base input processor, use  huggingface datasets with elastic search for translation memories
-
-    See the ElasticInputProcessor for using with Elasticsearch directly
+    用于 RAG 检索，提供了
+    加载翻译记忆 load_general_translation
+    加载术语表 load_general_glossary() / load_task_glossary()
+    检索翻译记忆 search_memory() / search_general_memory()
+    检索术语的方法 search_glossary() / batch_search_glossary()
     """
 
     def __init__(
@@ -47,7 +49,7 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
         elastic_client_args=None,
     ):
         """
-        Load the general translation examples
+        Load the general translation examples from ES
         """
         if elastic_client_args is None:
             elastic_client_args = {}
@@ -93,7 +95,12 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     def search_general_memory(
-        self, text, search_index: str | None = None, k=4, max_item_len=500, **search_kwargs
+        self,
+        text,
+        search_index: str | None = None,
+        k=4,
+        max_item_len=500,
+        **search_kwargs,
     ):
         """
         search general translation examples using elasticsearch
@@ -231,7 +238,10 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
 
                 if glossary_key in found_glossary:
                     found_glossary[glossary_key] = list(
-                        set(found_glossary[glossary_key] + general_glossary[glossary_key])
+                        set(
+                            found_glossary[glossary_key]
+                            + general_glossary[glossary_key]
+                        )
                     )
                 else:
                     found_glossary[glossary_key] = general_glossary[glossary_key]
