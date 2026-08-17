@@ -21,7 +21,14 @@ def en_text_search(text, keyword):
         return False
     text = text.casefold()
     keyword = keyword.casefold()
-    return bool(f" {keyword} " in text or text == keyword or len(keyword) - 1 > len(text) and text[:len(keyword) + 1] == keyword + " " or len(keyword) - 1 > len(text) and text[-len(keyword) + 1:] == " " + keyword)
+    return bool(
+        f" {keyword} " in text
+        or text == keyword
+        or len(keyword) - 1 > len(text)
+        and text[: len(keyword) + 1] == keyword + " "
+        or len(keyword) - 1 > len(text)
+        and text[-len(keyword) + 1 :] == " " + keyword
+    )
 
 
 def merge_glossary_index(df):
@@ -45,26 +52,44 @@ def merge_glossary_index(df):
 
 
 # heuristic glossary retrieval
-def get_glossary(text, glossary_index, max_k=10, lang_code="en", source_lang="ja"):
+def get_glossary(text, glossary_dict, max_k=10, lang_code="en", source_lang="ja"):
+    """
+    glossary_dict: 术语表的内存词典，结构：
+    {
+        "スライム": {                      # key: 源语言词条（DataFrame 的 index）
+            "en": array(["Slime", ...]), # value: 各语言列，cell 是 numpy.ndarray
+            "zh": array(["史莱姆", ...]),
+        },
+        "リムル": {
+            "en": array(["Rimuru"]),
+            "zh": array(["利姆鲁"]),
+        },
+    }
+
+    text 是一句待翻译文本
+
+    """
     text = clean_text(text)
     out_dict = {}
     count = 0
-    for k in glossary_index:
-        if lang_code not in glossary_index[k]:
+
+    # 反向匹配，遍历整个词典的所有条目，看哪些术语出现在了词典中
+    for entry in glossary_dict:
+        if lang_code not in glossary_dict[entry]:
             continue
-        if (k in text and source_lang != "en") or (
-            source_lang == "en" and en_text_search(text, k)
+        if (entry in text and source_lang != "en") or (
+            source_lang == "en" and en_text_search(text, entry)
         ):
             skip_flag = False
             # check for glossary word being a component of a longer glossary word
             for ek in out_dict:
-                if k.casefold() in ek.casefold():
+                if entry.casefold() in ek.casefold():
                     skip_flag = True
                     break
             if skip_flag:
                 continue
 
-            out_dict[k] = glossary_index[k][lang_code].tolist()
+            out_dict[entry] = glossary_dict[entry][lang_code].tolist()
             count += 1
             if count >= max_k:
                 break

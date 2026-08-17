@@ -163,6 +163,9 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
         ).to_dict("index")
 
     def load_task_glossary(self, glossary_parquet_path, glossary_index):
+        """
+        glossary_index 是术语表的名字
+        """
         task_glossary_df = pd.read_parquet(file_cacher(glossary_parquet_path))
         clean_index_dict = {k: clean_text(k) for k in task_glossary_df.index}
         task_glossary_df.rename(index=clean_index_dict, inplace=True)
@@ -186,6 +189,11 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
         target_lang="en",
         pbar=False,
     ):
+        """
+        被直接调用
+        内部对 text_list 的每一个句子都调用一遍 search_glossary
+        """
+
         def _temp_search_glossary(
             text,
             max_k=max_k,
@@ -217,25 +225,30 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
             max_k = k
         text = clean_text(text)
 
-        found_glossary = {}
+        task_glossary = {}
 
+        # 先查任务术语
         if task_index is not None:
-            found_glossary.update(
+            task_glossary.update(
                 self.search_task_glossary(
                     text, task_index, max_k=max_k, target_lang=target_lang
                 )
             )
 
-        if len(found_glossary) < max_k:
+        # 如果 max_k 还没达到，继续查通用术语
+        if len(task_glossary) < max_k:
             general_glossary = self.search_general_glossary(
                 text,
-                max_k=max_k - len(found_glossary),
+                max_k=max_k - len(task_glossary),
                 source_lang=source_lang,
                 target_lang=target_lang,
             )
+
+            # 合并两次查询的结果
             for glossary_key in general_glossary:
                 skip_flag = False
-                for existing_key in found_glossary:
+                # 1. 某些词已经被 task 更长的术语包含
+                for existing_key in task_glossary:
                     if glossary_key in existing_key:
                         # ignore glossary words being a component of a longer glossary word
                         skip_flag = True
@@ -243,17 +256,17 @@ class BaseInputProcessor(metaclass=abc.ABCMeta):
                 if skip_flag:
                     continue
 
-                if glossary_key in found_glossary:
-                    found_glossary[glossary_key] = list(
+                # 2. 某些词已经在 task 术语出现过, 合并翻译
+                if glossary_key in task_glossary:
+                    task_glossary[glossary_key] = list(
                         set(
-                            found_glossary[glossary_key]
-                            + general_glossary[glossary_key]
+                            task_glossary[glossary_key] + general_glossary[glossary_key]
                         )
                     )
-                else:
-                    found_glossary[glossary_key] = general_glossary[glossary_key]
+                else:  # 追加没有出现过的词到 task 结果中
+                    task_glossary[glossary_key] = general_glossary[glossary_key]
 
-        return found_glossary
+        return task_glossary
 
     def search_general_glossary(
         self, text, max_k=10, source_lang="ja", target_lang="en"
